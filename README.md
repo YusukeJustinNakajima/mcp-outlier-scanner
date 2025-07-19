@@ -1,120 +1,220 @@
-# MCP Outlier Scanner
+# 🔍 MCP Outlier Scanner
 
-A robust security tool for detecting malicious or misplaced tools in MCP (Model Context Protocol) servers using hybrid detection methods.
+<div align="center">
+  
+  [![Python](https://img.shields.io/badge/Python-3.8%2B-blue.svg?style=for-the-badge&logo=python)](https://www.python.org/)
+  [![License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](LICENSE)
+  [![Security](https://img.shields.io/badge/Security-Tool-red.svg?style=for-the-badge&logo=security)](https://github.com/YusukeJustinNakajima/mcp-outlier-scanner)
+  
+  <h3>🛡️ A robust security tool for detecting malicious or misplaced tools in MCP servers using hybrid AI 🤖</h3>
+  
+</div>
 
-## Why This Tool is Necessary
+---
 
-### The Problem with Existing Approaches
+## 🚨 Why This Tool is Necessary
 
-1. **Single-Server Analysis Limitations**
-   - Most existing scanners only analyze tool descriptions within a single server context
-   - Attackers can easily bypass these checks by crafting descriptions that seem legitimate within that limited scope
-   - No cross-server validation means malicious tools can hide by mimicking the naming patterns of their host server
+### ❌ The Problem with Existing Approaches
 
-2. **LLM-Only Detection Vulnerabilities**
-   - Pure LLM-based detection can be manipulated by adversarial prompt engineering
-   - Attackers can craft descriptions that convince LLMs the tool is legitimate
-   - LLMs lack the mathematical rigor of embedding-based similarity analysis
-   - No fallback mechanism when LLMs are deceived
+<table>
+<tr>
+<td width="50%">
 
-### Our Solution: Hybrid Detection Approach
+#### 1️⃣ **Single-Server Analysis Limitations**
+- 📍 Most scanners only analyze within single server context
+- 🎭 Attackers easily craft legitimate-looking descriptions
+- ❌ No cross-server validation
+- 🦹‍♂️ Malicious tools hide by mimicking patterns
 
-This tool combines multiple detection methods to create a robust defense:
-- **Embedding-based analysis**: Mathematical similarity detection that's hard to fool
-- **LLM-based analysis**: Semantic understanding for nuanced detection
-- **Cross-server validation**: Identifies tools that belong in different servers
-- **Maximum score principle**: Takes the highest detection score from all methods
+</td>
+<td width="50%">
 
-## Features
+#### 2️⃣ **LLM-Only Detection Vulnerabilities**
+- 🎯 Vulnerable to adversarial prompt engineering
+- 🤖 Attackers can deceive LLMs with crafted descriptions
+- 📐 Lacks mathematical rigor of embeddings
+- ⚠️ No fallback when LLMs are fooled
 
-- 🔍 **Dual Detection Methods**: Combines embedding and LLM analysis for each check
-- 🔄 **Cross-Server Analysis**: Detects tools that semantically belong to different servers
-- 🎯 **Consistency Checking**: Validates tool descriptions against server context
-- ⚡ **Async Scanning**: Fast, concurrent scanning of multiple MCP servers
-- 🛡️ **False Positive Warnings**: Alerts when detection methods disagree significantly
-- 📊 **Multiple Output Formats**: Text and JSON output options
-- 🔧 **Flexible Configuration**: Works with or without LLM support
+</td>
+</tr>
+</table>
 
-## Installation
+### ✅ Our Solution: Hybrid Detection Approach
+
+<div align="center">
+
+```mermaid
+graph LR
+    A[🔍 Tool Analysis] --> B[📊 Embedding Analysis]
+    A --> C[🤖 LLM Analysis]
+    B --> D[🔄 Cross-Server Check]
+    C --> D
+    D --> E[⚡ Maximum Score]
+    E --> F[🎯 Detection Result]
+```
+
+</div>
+
+| Feature | Description |
+|---------|-------------|
+| **🧮 Embedding-based** | Mathematical similarity detection that's hard to fool |
+| **🧠 LLM-based** | Semantic understanding for nuanced detection |
+| **🔄 Cross-server** | Identifies tools that belong in different servers |
+| **📈 Maximum score** | Takes the highest detection score from all methods |
+
+---
+
+## ✨ Features
+
+<div align="center">
+
+| Feature | Description |
+|:-------:|:------------|
+| 🔍 **Dual Detection** | Combines embedding and LLM analysis |
+| 🔄 **Cross-Server Analysis** | Detects misplaced tools across servers |
+| 🎯 **Consistency Checking** | Validates descriptions against context |
+| ⚡ **Async Scanning** | Fast, concurrent server scanning |
+| 🛡️ **FP Warnings** | Alerts on method disagreements |
+| 📊 **Multiple Formats** | Text and JSON output options |
+| 🔧 **Flexible Config** | Works with or without LLM |
+
+</div>
+
+---
+
+## 🚀 Installation
 
 ```bash
-# Clone the repository
-git clone https://github.com/yourusername/mcp-outlier-scanner
+# 📥 Clone the repository
+git clone https://github.com/YusukeJustinNakajima/mcp-outlier-scanner.git
 cd mcp-outlier-scanner
 
-# Install dependencies
+# 📦 Install dependencies
 pip install -r requirements.txt
 ```
 
-### Requirements
+### 📋 Requirements
 
-- Python 3.8+
-- Claude Desktop with configured MCP servers
-- Optional: OpenAI API key for LLM-enhanced detection
+- ✅ **Python 3.8+**
+- ✅ **Claude Desktop** with configured MCP servers
+- 💡 **Optional:** OpenAI API key for LLM-enhanced detection
 
-## Usage
+---
 
-### Basic Usage
+## 📖 Usage
+
+### 🎯 Basic Usage
 
 ```bash
-# Scan with default methods (consistency + cross-server)
+# 🔍 Scan with default methods (consistency + cross-server)
 python mcp_scanner.py
 
-# Enable LLM-enhanced detection
+# 🤖 Enable LLM-enhanced detection
 python mcp_scanner.py --use-ai
 
-# Use specific detection method
+# 🎯 Use specific detection method
 python mcp_scanner.py --methods consistency
 ```
 
-### Advanced Usage
+### 🚀 Advanced Usage
 
 ```bash
-# Set API key via environment variable
+# 🔑 Set API key via environment variable
 export OPENAI_API_KEY=your-api-key
 python mcp_scanner.py --use-ai
 
-# Save results to JSON file
+# 💾 Save results to JSON file
 python mcp_scanner.py --output json --save results.json
 
-# Debug mode with detailed output
+# 🐛 Debug mode with detailed output
 python mcp_scanner.py --debug --use-ai
 
-# Custom timeout for slow servers
+# ⏱️ Custom timeout for slow servers
 python mcp_scanner.py --timeout 60
 ```
 
-### Command Line Options
+### ⚙️ Command Line Options
 
-```
---config PATH         Path to Claude Desktop config file (auto-detected if not provided)
---timeout SEC         Timeout for server scanning in seconds (default: 30)
---use-ai              Enable AI/LLM for enhanced deviation detection
---api-key KEY         OpenAI API key for LLM detection
---output {text,json}  Output format for results (default: text)
---save FILE           Save report to specified file
---debug               Enable debug output for troubleshooting
---methods METHOD      Detection methods: consistency, cross-server, multi, ai
-```
+| Option | Description |
+|--------|-------------|
+| `--config PATH` | Path to Claude Desktop config file |
+| `--timeout SEC` | Timeout for server scanning (default: 30) |
+| `--use-ai` | Enable AI/LLM for enhanced detection |
+| `--api-key KEY` | OpenAI API key for LLM detection |
+| `--output {text,json}` | Output format (default: text) |
+| `--save FILE` | Save report to specified file |
+| `--debug` | Enable debug output |
+| `--methods METHOD` | Detection methods: consistency, cross-server, multi, ai |
 
-## Detection Methods
+---
 
-### 1. Consistency Check
-- **Embedding Analysis**: Measures semantic alignment between tool name, description, and server context
-- **LLM Analysis**: Evaluates tool consistency with server purpose and patterns
-- **Hybrid Scoring**: Takes maximum of both methods to catch evasion attempts
+## 🔬 Detection Methods
 
-### 2. Cross-Server Analysis
-- **Embedding Analysis**: Compares tool similarity across all servers using vector embeddings
-- **LLM Analysis**: Determines best-fitting server using semantic understanding
-- **Detects**: Tools accidentally or maliciously placed in wrong servers
-- **Critical Feature**: Identifies tools that might manipulate or modify tools in other servers
-- **Hybrid Scoring**: Maximum score from embedding and LLM ensures robust detection even if one method is bypassed
+### 1️⃣ Consistency Check
+<table>
+<tr>
+<td>
 
-## Output Format
+**🧮 Embedding Analysis**
+- Measures semantic alignment
+- Tool name vs description
+- Server context validation
 
-### Text Output (Default)
-```
+</td>
+<td>
+
+**🤖 LLM Analysis**
+- Evaluates tool consistency
+- Server purpose matching
+- Pattern analysis
+
+</td>
+<td>
+
+**⚡ Hybrid Scoring**
+- Maximum of both methods
+- Catches evasion attempts
+- Robust detection
+
+</td>
+</tr>
+</table>
+
+### 2️⃣ Cross-Server Analysis
+<table>
+<tr>
+<td>
+
+**🧮 Embedding Analysis**
+- Vector similarity comparison
+- Cross-server validation
+- Mathematical rigor
+
+</td>
+<td>
+
+**🤖 LLM Analysis**
+- Semantic understanding
+- Best-fit server detection
+- Context awareness
+
+</td>
+<td>
+
+**🚨 Critical Features**
+- Finds cross-server attacks(tool shadowing)
+- Maximum score principle
+
+</td>
+</tr>
+</table>
+
+---
+
+## 📊 Output Format
+
+### 📝 Text Output (Default)
+```ansi
 [DEVIATION] suspicious_tool (from mcp-server)
   Confidence: 85.00%
   Reason:
@@ -128,7 +228,7 @@ python mcp_scanner.py --timeout 60
   Recommendation: Investigate why this tool exists in the mcp-server server
 ```
 
-### JSON Output
+### 📋 JSON Output
 ```json
 {
   "scan_timestamp": "2024-01-20T10:30:00",
@@ -138,61 +238,72 @@ python mcp_scanner.py --timeout 60
     "total_tools": 47,
     "deviations_found": 2
   },
-  "deviations": [
-    {
-      "tool": {
-        "name": "suspicious_tool",
-        "description": "...",
-        "server": "mcp-server"
-      },
-      "is_deviation": true,
-      "confidence": 0.85,
-      "reason": "..."
-    }
-  ]
+  "deviations": [...]
 }
 ```
 
-## Architecture
+---
+
+## 🏗️ Architecture
 
 ```
 mcp-outlier-scanner/
-├── mcp_scanner.py              # Main entry point
-├── models.py                   # Data models
-├── config_loader.py            # Configuration handling
-├── server_scanner.py           # MCP server communication
-├── detector_manager.py         # Detection orchestration
-├── report_generator.py         # Output formatting
-├── utils.py                    # Utilities
-└── detectors/
-    ├── base_detector.py        # Base detector class
-    ├── consistency_detector.py # Consistency checking
-    └── crossserver_detector.py # Cross-server analysis
+├── 🎯 mcp_scanner.py              # Main entry point
+├── 📊 models.py                   # Data models
+├── ⚙️  config_loader.py           # Configuration handling
+├── 📡 server_scanner.py           # MCP server communication
+├── 🎮 detector_manager.py         # Detection orchestration
+├── 📝 report_generator.py         # Output formatting
+├── 🔧 utils.py                    # Utilities
+└── 🔍 detectors/
+    ├── 🏗️  base_detector.py       # Base detector class
+    ├── 🎯 consistency_detector.py # Consistency checking
+    └── 🔄 crossserver_detector.py # Cross-server analysis
 ```
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-### Development Setup
-
-```bash
-# Clone repository
-git clone https://github.com/YusukeJustinNakajima/mcp-outlier-scanner.git
-cd mcp-outlier-scanner
-
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Install dependencies
-pip install -r requirements.txt
-```
-
-## License
-
-MIT License - see LICENSE file for details
 
 ---
 
-**Note**: This tool is designed for defensive security purposes. Always ensure you have permission before scanning MCP servers.
+## 🤝 Contributing
+
+<div align="center">
+
+**Contributions are welcome! Please feel free to submit a Pull Request.**
+
+</div>
+
+### 👨‍💻 Development Setup
+
+```bash
+# 📥 Clone repository
+git clone https://github.com/YusukeJustinNakajima/mcp-outlier-scanner.git
+cd mcp-outlier-scanner
+
+# 🐍 Create virtual environment
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# 📦 Install dependencies
+pip install -r requirements.txt
+```
+
+---
+
+## 📄 License
+
+<div align="center">
+
+**MIT License** - see [LICENSE](LICENSE) file for details
+
+</div>
+
+---
+
+<div align="center">
+
+**⚠️ Note**: This tool is designed for defensive security purposes. Always ensure you have permission before scanning MCP servers.
+
+<br>
+
+Made with ❤️ for MCP Security
+
+</div>
