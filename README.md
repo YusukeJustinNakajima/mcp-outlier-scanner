@@ -28,13 +28,13 @@
 |---------|-------------|
 | **Embedding-based** | Mathematical similarity detection that's hard to fool |
 | **LLM-based** | Semantic understanding for nuanced detection |
-| **Cross-server** | Identifies tools that belong in different servers |
+| **Cross-server** | Detects tools that appear to be maliciously placed in other servers to interfere with or manipulate their behavior |
 | **Maximum score** | Takes the highest detection score from all methods |
 
 ## ✨ Features
 
 - **Dual Detection Methods**: Combines embedding and LLM analysis for each check
-- **Cross-Server Analysis**: Detects tools that semantically belong to different servers
+- **Cross-Server Analysis**: Detects tools that appear to be maliciously placed in other servers to interfere with or manipulate their behavior
 - **Consistency Checking**: Validates tool descriptions against server context
 - **Async Scanning**: Fast, concurrent scanning of multiple MCP servers
 - **False Positive Warnings**: Alerts when detection methods disagree significantly
