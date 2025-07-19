@@ -2,7 +2,8 @@
 
 A robust security tool for detecting malicious or misplaced tools in MCP (Model Context Protocol) servers using hybrid detection methods.
 
-<img width="1507" height="685" alt="image" src="https://github.com/user-attachments/assets/e777f858-b197-4a3e-ab3e-b0faf7fe91b3" />
+<img width="1510" height="696" alt="image" src="https://github.com/user-attachments/assets/661ec30b-4812-45f0-afcb-8014e6576d33" />
+
 
 ## Why This Tool is Necessary
 
