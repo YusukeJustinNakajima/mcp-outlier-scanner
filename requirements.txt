@@ -1,0 +1,4 @@
+colorama
+numpy
+sentence-transformers
+openai
