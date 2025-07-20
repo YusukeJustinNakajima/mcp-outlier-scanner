@@ -111,28 +111,93 @@ class ReportGenerator:
                         report.append(f"\n{Fore.RED}{Style.BRIGHT}[DEVIATION]{Style.RESET_ALL} {dev.tool.name} (from {dev.tool.server_name})")
                         report.append(f"  {confidence_color}Confidence: {dev.confidence:.2%}{Style.RESET_ALL}")
                         
-                        # Display multi-line reasons properly
-                        reason_lines = dev.reason.split('\n')
-                        report.append(f"  Reason:")
-                        for line in reason_lines:
-                            # Maintain indentation and color coding
-                            if line.startswith('📊'):
-                                report.append(f"    {Fore.CYAN}{line}{Style.RESET_ALL}")
-                            elif line.startswith('⚠️'):
-                                report.append(f"    {Fore.YELLOW}{Style.BRIGHT}{line}{Style.RESET_ALL}")
-                            elif line.startswith('🔍') or line.startswith('🤖'):
-                                report.append(f"    {Fore.BLUE}{Style.BRIGHT}{line}{Style.RESET_ALL}")
-                            elif line.strip().startswith('•'):
-                                report.append(f"    {line}")
-                            else:
-                                report.append(f"    {line}")
+                        # Check if reason contains multiple detection methods
+                        if "Detected by" in dev.reason and " method(s): " in dev.reason:
+                            # Parse multiple detection methods
+                            parts = dev.reason.split("Detected by ")
+                            if len(parts) > 1:
+                                # Extract the detection count
+                                method_info = parts[1].split(" method(s): ")
+                                if len(method_info) >= 2:
+                                    detection_count = method_info[0] + " method(s):"
+                                    report.append(f"  Reason: Detected by {detection_count}")
+                                    
+                                    # Split the methods content
+                                    methods_content = method_info[1]
+                                    
+                                    # Split by method markers
+                                    import re
+                                    # Pattern to match method names like CONSISTENCY_CHECK:, CROSS_SERVER_ANALYSIS:, etc.
+                                    method_pattern = r'(CONSISTENCY_CHECK:|CROSS_SERVER_ANALYSIS:|SUSPICIOUS_PATTERN:)'
+                                    method_parts = re.split(method_pattern, methods_content)
+                                    
+                                    # Process method parts (they come in pairs: name, content)
+                                    i = 1
+                                    while i < len(method_parts):
+                                        if i + 1 < len(method_parts):
+                                            method_name = method_parts[i].rstrip(':')
+                                            method_content = method_parts[i + 1]
+                                            
+                                            # Determine method display name and color
+                                            if 'CONSISTENCY_CHECK' in method_name:
+                                                report.append(f"\n    {Fore.MAGENTA}{Style.BRIGHT}[CONSISTENCY CHECK]{Style.RESET_ALL}")
+                                            elif 'CROSS_SERVER_ANALYSIS' in method_name:
+                                                report.append(f"\n    {Fore.GREEN}{Style.BRIGHT}[CROSS-SERVER ANALYSIS]{Style.RESET_ALL}")
+                                            elif 'SUSPICIOUS_PATTERN' in method_name:
+                                                report.append(f"\n    {Fore.RED}{Style.BRIGHT}[SUSPICIOUS PATTERN]{Style.RESET_ALL}")
+                                            else:
+                                                report.append(f"\n    {Style.BRIGHT}[{method_name}]{Style.RESET_ALL}")
+                                            
+                                            # Process the method content line by line
+                                            # Remove the leading semicolon separator if present
+                                            method_content = method_content.strip()
+                                            if method_content.startswith(';'):
+                                                method_content = method_content[1:].strip()
+                                            
+                                            content_lines = method_content.split('\n')
+                                            for line in content_lines:
+                                                line = line.strip()
+                                                if not line:
+                                                    continue
+                                                    
+                                                # Apply formatting based on line content
+                                                if line.startswith('📊'):
+                                                    report.append(f"    {Fore.CYAN}{line}{Style.RESET_ALL}")
+                                                elif line.startswith('⚠️'):
+                                                    report.append(f"    {Fore.YELLOW}{Style.BRIGHT}{line}{Style.RESET_ALL}")
+                                                elif line.startswith('🔍') or line.startswith('🤖'):
+                                                    report.append(f"    {Fore.BLUE}{Style.BRIGHT}{line}{Style.RESET_ALL}")
+                                                elif line.startswith('•'):
+                                                    report.append(f"      {line}")
+                                                else:
+                                                    report.append(f"    {line}")
+                                        i += 2
+                                else:
+                                    # Fallback to simple display
+                                    report.append(f"  Reason: {dev.reason}")
+                        else:
+                            # Single-line or simple multi-line reason - use original logic
+                            reason_lines = dev.reason.split('\n')
+                            report.append(f"  Reason:")
+                            for line in reason_lines:
+                                # Maintain indentation and color coding
+                                if line.startswith('📊'):
+                                    report.append(f"    {Fore.CYAN}{line}{Style.RESET_ALL}")
+                                elif line.startswith('⚠️'):
+                                    report.append(f"    {Fore.YELLOW}{Style.BRIGHT}{line}{Style.RESET_ALL}")
+                                elif line.startswith('🔍') or line.startswith('🤖'):
+                                    report.append(f"    {Fore.BLUE}{Style.BRIGHT}{line}{Style.RESET_ALL}")
+                                elif line.strip().startswith('•'):
+                                    report.append(f"    {line}")
+                                else:
+                                    report.append(f"    {line}")
                         
                         # Add security warning for high confidence deviations
                         if dev.confidence > 0.8:
-                            report.append(f"  {Fore.RED}{Style.BRIGHT}⚠️  HIGH RISK: Review this tool immediately{Style.RESET_ALL}")
+                            report.append(f"\n  {Fore.RED}{Style.BRIGHT}⚠️  HIGH RISK: Review this tool immediately{Style.RESET_ALL}")
                         
                         # Add recommendation
-                        report.append(f"  {Fore.YELLOW}Recommendation: Investigate why this tool exists in the {dev.tool.server_name} server{Style.RESET_ALL}")
+                        report.append(f"\n  {Fore.YELLOW}Recommendation: Investigate why this tool exists in the {dev.tool.server_name} server{Style.RESET_ALL}")
         else:
             report.append(f"\n{Fore.GREEN}✅ No deviations detected{Style.RESET_ALL}")
         
