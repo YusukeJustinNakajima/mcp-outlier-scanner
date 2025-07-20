@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
 Cross-server analysis detector using embeddings and LLM
+Modified to alert on high absolute match scores, regardless of current server match
 """
 
 import os
@@ -256,22 +257,47 @@ class CrossServerDetector(BaseDetector):
         best_server = max(server_similarities, key=server_similarities.get)
         best_similarity = server_similarities[best_server]
         
-        # Single focused check: Does the tool fit significantly better elsewhere?
+        # Check 1: Does the tool fit significantly better elsewhere?
         if best_server != current_server and best_similarity > current_similarity:
             fit_difference = best_similarity - current_similarity
             
             if fit_difference > 0.3 and best_similarity > 0.6:
                 # Strong indication of better fit elsewhere
-                deviation_score = 0.8
+                deviation_score = max(deviation_score, 0.8)
                 reasons.append(f"Tool has stronger semantic alignment with '{best_server}' (similarity: {best_similarity:.2f} vs current: {current_similarity:.2f})")
             elif fit_difference > 0.2 and best_similarity > 0.5:
                 # Moderate indication
-                deviation_score = 0.6
+                deviation_score = max(deviation_score, 0.6)
                 reasons.append(f"Tool shows better semantic fit with '{best_server}' ({best_similarity:.2f} vs current: {current_similarity:.2f})")
             elif fit_difference > 0.15 and best_similarity > 0.4:
                 # Weak indication
-                deviation_score = 0.4
+                deviation_score = max(deviation_score, 0.4)
                 reasons.append(f"Tool has slightly better alignment with '{best_server}' ({best_similarity:.2f} vs current: {current_similarity:.2f})")
+        
+        # Check 2: Are there ANY servers with high absolute match (regardless of current server match)?
+        high_match_servers = []
+        for server_name, similarity in server_similarities.items():
+            if server_name == current_server:
+                continue
+                
+            # Absolute thresholds for high match
+            if similarity >= 0.8:
+                high_match_servers.append((server_name, similarity, "very high"))
+                if deviation_score < 0.8:
+                    deviation_score = 0.8
+            elif similarity >= 0.7:
+                high_match_servers.append((server_name, similarity, "high"))
+                if deviation_score < 0.6:
+                    deviation_score = 0.6
+            elif similarity >= 0.6:
+                high_match_servers.append((server_name, similarity, "moderate"))
+                if deviation_score < 0.4:
+                    deviation_score = 0.4
+        
+        # Add reasons for high absolute matches
+        for server_name, similarity, level in high_match_servers:
+            if server_name != best_server:  # Avoid duplicate reasons
+                reasons.append(f"Tool has {level} semantic match with '{server_name}' (similarity: {similarity:.2f}, current: {current_similarity:.2f})")
         
         return deviation_score, reasons
     
@@ -295,13 +321,13 @@ class CrossServerDetector(BaseDetector):
             
             # Check if current server fit is poor (absolute threshold)
             if current_fit < 0.3:
-                deviation_score += 0.5
+                deviation_score = max(deviation_score, 0.5)
                 reasons.append(f"Very poor fit with current server (LLM: {current_fit:.2f})")
             elif current_fit < 0.5:
-                deviation_score += 0.3
+                deviation_score = max(deviation_score, 0.3)
                 reasons.append(f"Poor fit with current server (LLM: {current_fit:.2f})")
             
-            # Check fit difference with ±0.2 threshold
+            # Check 1: Relative fit difference with ±0.2 threshold
             if best_server != current_server:
                 fit_difference = best_fit - current_fit
                 
@@ -311,57 +337,72 @@ class CrossServerDetector(BaseDetector):
                 # If another server fits better by 0.2 or more
                 if fit_difference >= 0.2:
                     if fit_difference >= 0.5:
-                        deviation_score += 0.8
+                        deviation_score = max(deviation_score, 0.8)
                         reasons.append(
                             f"Much better fit with '{best_server}' "
                             f"(LLM: {best_fit:.2f} vs {current_fit:.2f}, diff: +{fit_difference:.2f})"
                         )
                     elif fit_difference >= 0.3:
-                        deviation_score += 0.6
+                        deviation_score = max(deviation_score, 0.6)
                         reasons.append(
                             f"Better fit with '{best_server}' "
                             f"(LLM: {best_fit:.2f} vs {current_fit:.2f}, diff: +{fit_difference:.2f})"
                         )
                     else:  # fit_difference >= 0.2
-                        deviation_score += 0.4
+                        deviation_score = max(deviation_score, 0.4)
                         reasons.append(
                             f"Slightly better fit with '{best_server}' "
                             f"(LLM: {best_fit:.2f} vs {current_fit:.2f}, diff: +{fit_difference:.2f})"
                         )
             
+            # Check 2: Absolute high fit scores for ANY server (NEW LOGIC)
+            # Check best server absolute fit
+            if best_fit >= 0.8:
+                if best_server != current_server:
+                    deviation_score = max(deviation_score, 0.8)
+                    if not any("Much better fit" in r for r in reasons):  # Avoid duplicate
+                        reasons.append(f"Very high absolute fit with '{best_server}' (LLM: {best_fit:.2f})")
+            elif best_fit >= 0.7:
+                if best_server != current_server:
+                    deviation_score = max(deviation_score, 0.6)
+                    if not any("Better fit" in r for r in reasons):  # Avoid duplicate
+                        reasons.append(f"High absolute fit with '{best_server}' (LLM: {best_fit:.2f})")
+            
+            # Check other high fit servers for absolute matches
+            if result.get('other_high_fit_servers'):
+                for other_server in result['other_high_fit_servers']:
+                    other_fit = other_server['fit']
+                    server_name = other_server['server']
+                    
+                    # Absolute threshold checks
+                    if other_fit >= 0.8:
+                        deviation_score = max(deviation_score, 0.7)
+                        reasons.append(f"Very high absolute fit with '{server_name}' (LLM: {other_fit:.2f})")
+                    elif other_fit >= 0.7:
+                        deviation_score = max(deviation_score, 0.5)
+                        reasons.append(f"High absolute fit with '{server_name}' (LLM: {other_fit:.2f})")
+                    elif other_fit >= 0.6:
+                        deviation_score = max(deviation_score, 0.3)
+                        reasons.append(f"Moderate absolute fit with '{server_name}' (LLM: {other_fit:.2f})")
+            
             # Check if current server fits significantly better than others
-            elif best_server == current_server:
+            if best_server == current_server:
                 # Check other servers
                 for other_result in result.get('other_high_fit_servers', []):
                     other_fit = other_result['fit']
                     fit_difference = current_fit - other_fit
                     
                     # If current server is NOT significantly better (less than 0.2 difference)
-                    if fit_difference < 0.2:
-                        deviation_score += 0.3
+                    if fit_difference < 0.2 and other_fit >= 0.5:
+                        deviation_score = max(deviation_score, 0.3)
                         reasons.append(
                             f"Current server '{current_server}' is not significantly better than '{other_result['server']}' "
                             f"(diff: +{fit_difference:.2f})"
                         )
             
-            # Check other high fit servers (alternative fits)
-            if result.get('other_high_fit_servers'):
-                for other_server in result['other_high_fit_servers']:
-                    other_fit = other_server['fit']
-                    fit_difference_from_current = other_fit - current_fit
-                    
-                    # If another server also fits well (within 0.2 threshold)
-                    if fit_difference_from_current >= -0.2 and other_fit >= 0.6:
-                        if best_server != other_server['server']:  # Don't double count
-                            deviation_score += 0.2
-                            reasons.append(
-                                f"Also fits well with '{other_server['server']}' "
-                                f"(LLM: {other_fit:.2f}, diff from current: {fit_difference_from_current:+.2f})"
-                            )
-            
             # Direct suspicious flag from LLM
             if result.get('is_suspicious', False):
-                deviation_score += 0.4
+                deviation_score = max(deviation_score, 0.4)
                 reasons.append("LLM flags tool as suspicious")
             
             # Add reasoning if available
