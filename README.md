@@ -48,19 +48,6 @@ pip install -r requirements.txt
 
 ## 📖 Usage
 
-### 👨‍💻 Development Setup
-
-```bash
-# Clone repository
-git clone https://github.com/YusukeJustinNakajima/mcp-outlier-scanner.git
-cd mcp-outlier-scanner
-
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Install dependencies
-pip install -r requirements.txt
 ```
 
 ### 🎯 Basic Usage
