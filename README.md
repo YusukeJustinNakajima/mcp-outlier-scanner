@@ -7,7 +7,7 @@
 ## 🚨 Background
 - During the analysis of existing MCP scanning tools, I discovered critical limitations that led to the failure in detecting a malicious tool. These tools suffered from:
 
-### 1️⃣ Isolated LLM Evaluation
+### 1️⃣ Overlooking Semantic Inconsistency
 - Existing scanners analyze each tool description in isolation using LLMs, without checking for inconsistencies between the tool's name and description.
 - For example, a tool named "get_cve" should describe fetching CVE data, not performing unrelated tasks. This semantic alignment is rarely verified.
 
