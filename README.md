@@ -2,6 +2,8 @@
 
 **A robust security tool for detecting malicious tools in MCP servers using hybrid AI**
 
+<img width="1899" height="680" alt="image" src="https://github.com/user-attachments/assets/e7aeb92d-2639-4858-9633-c7732483f6a9" />
+
 ## 🚨 Background
 - During the analysis of existing MCP scanning tools, I discovered critical limitations that led to the failure in detecting a malicious tool. These tools suffered from:
 
